@@ -1,6 +1,11 @@
 """Production RAG Pipeline — Bài tập NHÓM: ghép M1+M2+M3+M4."""
 
-import os, sys, time
+# ruff: noqa: E402
+
+import os
+import re
+import sys
+import time
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -19,11 +24,11 @@ def build_pipeline():
     print("=" * 60)
 
     # Step 1: Load & Chunk (M1)
-    print("\n[1/3] Chunking documents...")
+    print("\n[1/4] Chunking documents...")
     docs = load_documents()
     all_chunks = []
     for doc in docs:
-        parents, children = chunk_hierarchical(doc["text"], metadata=doc["metadata"])
+        _, children = chunk_hierarchical(doc["text"], metadata=doc["metadata"])
         for child in children:
             all_chunks.append({"text": child.text, "metadata": {**child.metadata, "parent_id": child.parent_id}})
     print(f"  {len(all_chunks)} chunks from {len(docs)} documents")
@@ -36,7 +41,7 @@ def build_pipeline():
         all_chunks = [{"text": e.enriched_text, "metadata": e.auto_metadata} for e in enriched]
         print(f"  Enriched {len(enriched)} chunks")
     else:
-        print("  ⚠️  M5 not implemented — using raw chunks (fallback)")
+        print("  M5 returned no chunks, using raw chunks")
 
     # Step 3: Index (M2)
     print("\n[3/4] Indexing (BM25 + Dense)...")
@@ -56,18 +61,35 @@ def run_query(query: str, search: HybridSearch, reranker: CrossEncoderReranker) 
     docs = [{"text": r.text, "score": r.score, "metadata": r.metadata} for r in results]
     reranked = reranker.rerank(query, docs, top_k=RERANK_TOP_K)
     contexts = [r.text for r in reranked] if reranked else [r.text for r in results[:3]]
-
-    # TODO (nhóm): Replace with LLM generation for better scores
-    # from openai import OpenAI
-    # client = OpenAI()
-    # context_str = "\n\n".join(contexts)
-    # resp = client.chat.completions.create(model="gpt-4o-mini", messages=[
-    #     {"role": "system", "content": "Trả lời CHỈ dựa trên context. Nếu không có → nói 'Không tìm thấy.'"},
-    #     {"role": "user", "content": f"Context:\n{context_str}\n\nCâu hỏi: {query}"},
-    # ])
-    # answer = resp.choices[0].message.content
-    answer = contexts[0] if contexts else "Không tìm thấy thông tin."
+    answer = extract_answer(query, contexts)
     return answer, contexts
+
+
+def extract_answer(query: str, contexts: list[str]) -> str:
+    """Pick a compact answer sentence from retrieved context."""
+    if not contexts:
+        return "Không tìm thấy thông tin."
+    query_tokens = set(_tokens(query))
+    candidates = []
+    for context in contexts:
+        clean_context = re.sub(r"Câu hỏi gợi ý:.*", "", context, flags=re.DOTALL)
+        for sentence in re.split(r"(?<=[.!?。])\s+|\n+", clean_context):
+            sentence = sentence.strip()
+            if len(sentence) < 12:
+                continue
+            tokens = set(_tokens(sentence))
+            score = len(query_tokens & tokens)
+            if any(token.isdigit() for token in query_tokens) and re.search(r"\d", sentence):
+                score += 2
+            candidates.append((score, sentence))
+    candidates.sort(key=lambda item: (item[0], -len(item[1])), reverse=True)
+    if candidates and candidates[0][0] > 0:
+        return candidates[0][1]
+    return contexts[0][:500]
+
+
+def _tokens(text: str) -> list[str]:
+    return re.findall(r"\w+", text.lower(), flags=re.UNICODE)
 
 
 def evaluate_pipeline(search: HybridSearch, reranker: CrossEncoderReranker):

@@ -1,3 +1,82 @@
 [
-  {"question": "hihi cả nhà tự tạo testset bằng cơm nhé", "ground_truth": "Không kịp tạo luôn"},
+  {
+    "question": "Nghị định 13/2023/NĐ-CP quy định về gì?",
+    "ground_truth": "Bảo vệ dữ liệu cá nhân."
+  },
+  {
+    "question": "Dữ liệu cá nhân được hiểu là gì?",
+    "ground_truth": "Dữ liệu về một con người cụ thể hoặc có thể xác định được."
+  },
+  {
+    "question": "Một ví dụ về dữ liệu cá nhân theo Nghị định 13 là gì?",
+    "ground_truth": "Họ tên, ngày sinh, số điện thoại hoặc địa chỉ email."
+  },
+  {
+    "question": "Dữ liệu cá nhân nhạy cảm là gì?",
+    "ground_truth": "Là dữ liệu gắn liền với quyền riêng tư, khi bị xâm phạm có thể gây ảnh hưởng trực tiếp đến quyền và lợi ích hợp pháp của cá nhân."
+  },
+  {
+    "question": "Một ví dụ về dữ liệu cá nhân nhạy cảm theo Nghị định 13 là gì?",
+    "ground_truth": "Thông tin về tình trạng sức khỏe và đời tư được ghi trong hồ sơ bệnh án."
+  },
+  {
+    "question": "Chủ thể dữ liệu có quyền gì đối với việc xử lý dữ liệu cá nhân của mình?",
+    "ground_truth": "Quyền đồng ý hoặc không đồng ý cho phép xử lý dữ liệu cá nhân."
+  },
+  {
+    "question": "Chủ thể dữ liệu có quyền nào liên quan đến xóa dữ liệu?",
+    "ground_truth": "Quyền xóa dữ liệu."
+  },
+  {
+    "question": "Một hành vi nào bị nghiêm cấm theo Nghị định 13/2023/NĐ-CP?",
+    "ground_truth": "Lợi dụng hoạt động bảo vệ dữ liệu cá nhân để vi phạm pháp luật."
+  },
+  {
+    "question": "Người nộp thuế trong tờ khai BCTC là đơn vị nào?",
+    "ground_truth": "CÔNG TY CỔ PHẦN DHA SURFACES."
+  },
+  {
+    "question": "Kỳ tính thuế trên tờ khai BCTC là gì?",
+    "ground_truth": "Quý 4 năm 2024."
+  },
+  {
+    "question": "Mã số thuế của người nộp thuế là gì?",
+    "ground_truth": "0106769437."
+  },
+  {
+    "question": "Thuế GTGT còn được khấu trừ chuyển sang kỳ sau là bao nhiêu?",
+    "ground_truth": "77.377.803 đồng."
+  },
+  {
+    "question": "Thuế GTGT phải nộp trong kỳ là bao nhiêu?",
+    "ground_truth": "52.133.830 đồng."
+  },
+  {
+    "question": "Tổng doanh thu hàng hóa, dịch vụ bán ra là bao nhiêu?",
+    "ground_truth": "3.703.688.610 đồng."
+  },
+  {
+    "question": "Thuế GTGT của hàng hóa, dịch vụ bán ra là bao nhiêu?",
+    "ground_truth": "344.675.400 đồng."
+  },
+  {
+    "question": "Người nộp thuế ký tờ khai vào ngày nào?",
+    "ground_truth": "Ngày 24 tháng 01 năm 2025."
+  },
+  {
+    "question": "Chủ thể dữ liệu có quyền nào liên quan đến việc cung cấp dữ liệu cá nhân?",
+    "ground_truth": "Quyền yêu cầu cung cấp dữ liệu cá nhân."
+  },
+  {
+    "question": "Chủ thể dữ liệu có quyền nào liên quan đến việc hạn chế xử lý dữ liệu cá nhân?",
+    "ground_truth": "Quyền hạn chế xử lý dữ liệu cá nhân."
+  },
+  {
+    "question": "Một nguyên tắc cơ bản khi xử lý dữ liệu cá nhân là gì?",
+    "ground_truth": "Dữ liệu cá nhân phải được xử lý đúng mục đích, đầy đủ và chính xác."
+  },
+  {
+    "question": "Một cơ quan quản lý nhà nước về bảo vệ dữ liệu cá nhân là cơ quan nào?",
+    "ground_truth": "Bộ Công an."
+  }
 ]

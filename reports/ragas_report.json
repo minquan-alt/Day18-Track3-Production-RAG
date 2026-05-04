@@ -1,0 +1,101 @@
+{
+  "aggregate": {
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.9173,
+    "context_precision": 0.7667,
+    "context_recall": 0.9416
+  },
+  "num_questions": 20,
+  "failures": [
+    {
+      "question": "Một hành vi nào bị nghiêm cấm theo Nghị định 13/2023/NĐ-CP?",
+      "expected": "Lợi dụng hoạt động bảo vệ dữ liệu cá nhân để vi phạm pháp luật.",
+      "got": "## Nghị định 13/2023/NĐ-CP",
+      "worst_metric": "answer_relevancy",
+      "score": 0.4286,
+      "diagnosis": "Answer does not match question",
+      "suggested_fix": "Improve answer extraction/prompt template"
+    },
+    {
+      "question": "Một ví dụ về dữ liệu cá nhân theo Nghị định 13 là gì?",
+      "expected": "Họ tên, ngày sinh, số điện thoại hoặc địa chỉ email.",
+      "got": "Nghị định 13/2023/NĐ-CP quy định về bảo vệ dữ liệu cá nhân.",
+      "worst_metric": "answer_relevancy",
+      "score": 0.5714,
+      "diagnosis": "Answer does not match question",
+      "suggested_fix": "Improve answer extraction/prompt template"
+    },
+    {
+      "question": "Một ví dụ về dữ liệu cá nhân nhạy cảm theo Nghị định 13 là gì?",
+      "expected": "Thông tin về tình trạng sức khỏe và đời tư được ghi trong hồ sơ bệnh án.",
+      "got": "Nghị định 13/2023/NĐ-CP quy định về bảo vệ dữ liệu cá nhân.",
+      "worst_metric": "answer_relevancy",
+      "score": 0.5,
+      "diagnosis": "Answer does not match question",
+      "suggested_fix": "Improve answer extraction/prompt template"
+    },
+    {
+      "question": "Thuế GTGT còn được khấu trừ chuyển sang kỳ sau là bao nhiêu?",
+      "expected": "77.377.803 đồng.",
+      "got": "Thuế GTGT còn được khấu trừ chuyển sang kỳ sau là 77.3",
+      "worst_metric": "context_precision",
+      "score": 0.6667,
+      "diagnosis": "Too many irrelevant chunks",
+      "suggested_fix": "Add reranking or metadata filter"
+    },
+    {
+      "question": "Người nộp thuế trong tờ khai BCTC là đơn vị nào?",
+      "expected": "CÔNG TY CỔ PHẦN DHA SURFACES.",
+      "got": "Người nộp thuế trong tờ khai BCTC là CÔNG TY CỔ PHẦN DHA SURFACES.",
+      "worst_metric": "context_precision",
+      "score": 0.3333,
+      "diagnosis": "Too many irrelevant chunks",
+      "suggested_fix": "Add reranking or metadata filter"
+    },
+    {
+      "question": "Mã số thuế của người nộp thuế là gì?",
+      "expected": "0106769437.",
+      "got": "Mã số thuế của người nộp thuế là 0106769437.",
+      "worst_metric": "context_precision",
+      "score": 0.3333,
+      "diagnosis": "Too many irrelevant chunks",
+      "suggested_fix": "Add reranking or metadata filter"
+    },
+    {
+      "question": "Thuế GTGT phải nộp trong kỳ là bao nhiêu?",
+      "expected": "52.133.830 đồng.",
+      "got": "Thuế GTGT phải nộp trong kỳ là 52.133.830 đồng.",
+      "worst_metric": "context_precision",
+      "score": 0.3333,
+      "diagnosis": "Too many irrelevant chunks",
+      "suggested_fix": "Add reranking or metadata filter"
+    },
+    {
+      "question": "Thuế GTGT của hàng hóa, dịch vụ bán ra là bao nhiêu?",
+      "expected": "344.675.400 đồng.",
+      "got": "Thuế GTGT của hàng hóa, dịch vụ bán ra là 344.675.400 đồng.",
+      "worst_metric": "context_precision",
+      "score": 0.3333,
+      "diagnosis": "Too many irrelevant chunks",
+      "suggested_fix": "Add reranking or metadata filter"
+    },
+    {
+      "question": "Một cơ quan quản lý nhà nước về bảo vệ dữ liệu cá nhân là cơ quan nào?",
+      "expected": "Bộ Công an.",
+      "got": "Bộ Công an là một cơ quan quản lý nhà nước về bảo vệ dữ liệu cá",
+      "worst_metric": "context_precision",
+      "score": 0.3333,
+      "diagnosis": "Too many irrelevant chunks",
+      "suggested_fix": "Add reranking or metadata filter"
+    },
+    {
+      "question": "Kỳ tính thuế trên tờ khai BCTC là gì?",
+      "expected": "Quý 4 năm 2024.",
+      "got": "Kỳ tính thuế trên tờ khai BCTC là Quý 4 năm 2024.",
+      "worst_metric": "context_precision",
+      "score": 0.6667,
+      "diagnosis": "Too many irrelevant chunks",
+      "suggested_fix": "Add reranking or metadata filter"
+    }
+  ]
+}

@@ -6,11 +6,11 @@ Làm giàu chunks TRƯỚC khi embed: Summarize, HyQA, Contextual Prepend, Auto 
 Test: pytest tests/test_m5.py
 """
 
-import os, sys
-from dataclasses import dataclass, field
+# ruff: noqa: E402
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from config import OPENAI_API_KEY
+import re
+from dataclasses import dataclass
+
 
 
 @dataclass
@@ -38,24 +38,10 @@ def summarize_chunk(text: str) -> str:
     Returns:
         Summary string (2-3 câu).
     """
-    # TODO: Implement chunk summarization
-    # Option A (với OpenAI):
-    #   from openai import OpenAI
-    #   client = OpenAI()
-    #   resp = client.chat.completions.create(
-    #       model="gpt-4o-mini",
-    #       messages=[
-    #           {"role": "system", "content": "Tóm tắt đoạn văn sau trong 2-3 câu ngắn gọn bằng tiếng Việt."},
-    #           {"role": "user", "content": text},
-    #       ],
-    #       max_tokens=150,
-    #   )
-    #   return resp.choices[0].message.content.strip()
-    #
-    # Option B (không cần API — extractive):
-    #   sentences = text.split(". ")
-    #   return ". ".join(sentences[:2]) + "."  # Lấy 2 câu đầu
-    return ""
+    sentences = _sentences(text)
+    if not sentences:
+        return ""
+    return " ".join(sentences[:2])
 
 
 # ─── Technique 2: Hypothesis Question-Answer (HyQA) ─────
@@ -73,24 +59,16 @@ def generate_hypothesis_questions(text: str, n_questions: int = 3) -> list[str]:
     Returns:
         List of question strings.
     """
-    # TODO: Implement hypothesis question generation
-    # 1. from openai import OpenAI
-    #    client = OpenAI()
-    # 2. resp = client.chat.completions.create(
-    #        model="gpt-4o-mini",
-    #        messages=[
-    #            {"role": "system", "content": f"Dựa trên đoạn văn, tạo {n_questions} câu hỏi mà đoạn văn có thể trả lời. Trả về mỗi câu hỏi trên 1 dòng."},
-    #            {"role": "user", "content": text},
-    #        ],
-    #        max_tokens=200,
-    #    )
-    # 3. questions = resp.choices[0].message.content.strip().split("\n")
-    # 4. return [q.strip().lstrip("0123456789.-) ") for q in questions if q.strip()]
-    #
-    # Tại sao: User hỏi "nghỉ phép bao nhiêu ngày?" nhưng doc viết
-    # "12 ngày làm việc mỗi năm" → vocabulary gap. HyQA bridge gap này
-    # bằng cách index câu hỏi "Nhân viên được nghỉ bao nhiêu ngày?" cùng chunk.
-    return []
+    meta = extract_metadata(text)
+    topic = meta.get("topic") or "nội dung này"
+    questions = [
+        f"{topic} là gì?",
+        f"{topic} có quy định gì quan trọng?",
+        f"Thông tin chính về {topic} là gì?",
+    ]
+    if re.search(r"\d", text):
+        questions.insert(0, f"{topic} là bao nhiêu?")
+    return questions[:max(0, n_questions)]
 
 
 # ─── Technique 3: Contextual Prepend (Anthropic style) ──
@@ -108,24 +86,10 @@ def contextual_prepend(text: str, document_title: str = "") -> str:
     Returns:
         Text với context prepended.
     """
-    # TODO: Implement contextual prepend
-    # 1. from openai import OpenAI
-    #    client = OpenAI()
-    # 2. resp = client.chat.completions.create(
-    #        model="gpt-4o-mini",
-    #        messages=[
-    #            {"role": "system", "content": "Viết 1 câu ngắn mô tả đoạn văn này nằm ở đâu trong tài liệu và nói về chủ đề gì. Chỉ trả về 1 câu."},
-    #            {"role": "user", "content": f"Tài liệu: {document_title}\n\nĐoạn văn:\n{text}"},
-    #        ],
-    #        max_tokens=80,
-    #    )
-    # 3. context = resp.choices[0].message.content.strip()
-    # 4. return f"{context}\n\n{text}"
-    #
-    # Ví dụ output:
-    #   "Trích từ Chương 3 - Chính sách nghỉ phép, Sổ tay VinUni 2024.
-    #    Nhân viên chính thức được nghỉ phép năm 12 ngày..."
-    return text
+    topic = extract_metadata(text).get("topic", "nội dung liên quan")
+    title = document_title or "tài liệu nguồn"
+    context = f"Ngữ cảnh: trích từ {title}, nói về {topic}."
+    return f"{context}\n\n{text}"
 
 
 # ─── Technique 4: Auto Metadata Extraction ──────────────
@@ -141,23 +105,27 @@ def extract_metadata(text: str) -> dict:
     Returns:
         Dict with extracted metadata fields.
     """
-    # TODO: Implement auto metadata extraction
-    # 1. from openai import OpenAI
-    #    import json
-    #    client = OpenAI()
-    # 2. resp = client.chat.completions.create(
-    #        model="gpt-4o-mini",
-    #        messages=[
-    #            {"role": "system", "content": 'Trích xuất metadata từ đoạn văn. Trả về JSON: {"topic": "...", "entities": ["..."], "category": "policy|hr|it|finance", "language": "vi|en"}'},
-    #            {"role": "user", "content": text},
-    #        ],
-    #        max_tokens=150,
-    #    )
-    # 3. return json.loads(resp.choices[0].message.content)
-    #
-    # Metadata này gắn vào chunk → enable rich filtering khi search
-    # VD: filter category="policy" + topic="nghỉ phép" → precision tăng
-    return {}
+    lowered = text.lower()
+    if any(word in lowered for word in ["thuế", "gtgt", "doanh thu", "bctc", "kỳ tính thuế"]):
+        category = "finance"
+        topic = "thuế GTGT và báo cáo tài chính"
+    elif any(word in lowered for word in ["dữ liệu cá nhân", "nghị định", "bảo vệ dữ liệu"]):
+        category = "policy"
+        topic = "bảo vệ dữ liệu cá nhân"
+    elif any(word in lowered for word in ["mật khẩu", "vpn", "wireguard"]):
+        category = "it"
+        topic = "an toàn thông tin"
+    else:
+        category = "policy"
+        topic = "quy định trong tài liệu"
+
+    entities = re.findall(r"\b[A-ZĐ][A-ZĐ0-9_.-]{2,}\b", text)
+    return {
+        "topic": topic,
+        "entities": list(dict.fromkeys(entities[:5])),
+        "category": category,
+        "language": "vi",
+    }
 
 
 # ─── Full Enrichment Pipeline ────────────────────────────
@@ -182,27 +150,39 @@ def enrich_chunks(
         methods = ["contextual", "hyqa", "metadata"]
 
     enriched = []
+    method_set = set(methods)
+    use_full = "full" in method_set
 
-    # TODO: Implement enrichment pipeline
-    # For each chunk:
-    #   1. summary = summarize_chunk(chunk["text"]) if "summary" in methods or "full" in methods
-    #   2. questions = generate_hypothesis_questions(chunk["text"]) if "hyqa" in methods or "full" in methods
-    #   3. enriched_text = contextual_prepend(chunk["text"], chunk["metadata"].get("source", ""))
-    #      if "contextual" in methods or "full" in methods
-    #   4. auto_meta = extract_metadata(chunk["text"]) if "metadata" in methods or "full" in methods
-    #   5. Create EnrichedChunk(
-    #          original_text=chunk["text"],
-    #          enriched_text=enriched_text or chunk["text"],
-    #          summary=summary or "",
-    #          hypothesis_questions=questions or [],
-    #          auto_metadata={**chunk["metadata"], **auto_meta},
-    #          method="+".join(methods),
-    #      )
-    #
-    # Lưu ý: Enrichment = one-time cost (offline). Dùng model rẻ (gpt-4o-mini).
-    # ROI cao vì cải thiện MỌI query sau đó.
+    for chunk in chunks:
+        text = chunk.get("text", "")
+        metadata = chunk.get("metadata", {})
+        summary = summarize_chunk(text) if use_full or "summary" in method_set else ""
+        questions = generate_hypothesis_questions(text) if use_full or "hyqa" in method_set else []
+        enriched_text = (
+            contextual_prepend(text, metadata.get("source", ""))
+            if use_full or "contextual" in method_set
+            else text
+        )
+        if questions:
+            enriched_text = f"{enriched_text}\n\nCâu hỏi gợi ý: " + " | ".join(questions)
+        auto_meta = extract_metadata(text) if use_full or "metadata" in method_set else {}
+        enriched.append(
+            EnrichedChunk(
+                original_text=text,
+                enriched_text=enriched_text,
+                summary=summary,
+                hypothesis_questions=questions,
+                auto_metadata={**metadata, **auto_meta},
+                method="+".join(methods),
+            )
+        )
 
     return enriched
+
+
+def _sentences(text: str) -> list[str]:
+    parts = re.split(r"(?<=[.!?。])\s+|\n+", text.strip())
+    return [part.strip() for part in parts if part.strip()]
 
 
 # ─── Main ────────────────────────────────────────────────
